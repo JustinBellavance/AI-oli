@@ -9,10 +9,13 @@ import io
 import os
 
 from google import genai
+import csv
+import pandas as pd
+from io import StringIO
 
 client = genai.Client()
 
-def send_photo(image: Image.Image) -> str:
+def send_photo(image: Image.Image) -> pd.DataFrame:
     
     result = client.models.generate_content(
         model="gemini-2.0-flash",
@@ -28,16 +31,19 @@ def send_photo(image: Image.Image) -> str:
                         
             Get the most accurate measurement, and try to analyse the food to scale with items around it, when applicable. 
                         
-            If it's not food, send 'not food'.
+            If it's not food, only send 'not food' instead of the csv.
             """,
         ],
     )
     # Check if the result is "not food"
     if result.text.lower() == "not food":
         return None
-
-    # Convert the CSV string to a Pandas DataFrame
-    csv_data = result.text
-    df = pd.read_csv(io.StringIO(csv_data))
     
+    csv_data = result.text.replace('```csv', '').replace('```', '').strip()
+
+    print(csv_data)
+
+    # Parse the CSV string
+    df = pd.read_csv(StringIO(csv_data))
+
     return df

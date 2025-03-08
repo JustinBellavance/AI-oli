@@ -31,10 +31,9 @@ async def read_root(request: Request):
 async def upload_image(image_data: ImageData):
     # First, define the filename using the current date and time
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"data/uploaded_image_{timestamp}.png"
-    # filename = f"data/pizza-bob.png"
+    filename = f"data/images/uploaded_image_{timestamp}.png"
     
-    with open('data/pizza-bob.png', 'rb') as image_file:
+    with open('data/images/bigmac_patrick.png', 'rb') as image_file:
         img_str = base64.b64encode(image_file.read()).decode('utf-8')
     image_data.image = f"data:image/png;base64,{img_str}"
     
@@ -48,9 +47,18 @@ async def upload_image(image_data: ImageData):
     # Save the image in the data directory
     image.save(filename)
     
-    # Send the photo for further processing
     dataframe = send_photo(image)
+    
+    dataframe['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    print(dataframe.info())
 
+    csv_path = "data/data.csv"
+    if os.path.exists(csv_path):
+        dataframe.to_csv(csv_path, mode='a', header=False, index=False)
+    else:
+        dataframe.to_csv(csv_path, mode='w', header=True, index=False)
+        
     print(dataframe.head())
 
     return {"filename": filename}
