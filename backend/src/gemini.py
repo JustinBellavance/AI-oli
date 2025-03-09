@@ -47,3 +47,16 @@ def send_photo(image: Image.Image) -> pd.DataFrame:
     df = pd.read_csv(StringIO(csv_data))
 
     return df
+
+def send_chat(text : str) -> str:
+    
+    result = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=[
+            """
+            Say hi!
+            """,
+        ],
+    )
+        
+    return result.text
