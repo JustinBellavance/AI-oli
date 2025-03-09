@@ -62,6 +62,8 @@ def send_chat(df : pd.DataFrame) -> str:
             very very briefly describe the food and give advice or recommendations, if needed.
             
             Keep it very brief.
+            
+            If dataframe is empty. Send 'This was not recognized as food!'
             """,
             "\n\n",
             df.to_string()
