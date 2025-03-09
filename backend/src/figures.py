@@ -27,6 +27,7 @@ agg["fat_pct"]     = agg["fat (g)"] / agg["total_macros"] * 100
 # Create a horizontal stacked bar chart using Plotly Graph Objects
 fig = go.Figure()
 
+print(f"{agg['timestamp']=}")
 # Add traces for protein, carbohydrates, and fat
 fig.add_trace(go.Bar(
     y=agg["timestamp"],
