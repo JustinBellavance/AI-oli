@@ -11,10 +11,24 @@ import base64
 import io
 from PIL import Image
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.gemini import send_photo
 
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+]
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,           # Only allow specified origins
+    allow_credentials=True,
+    allow_methods=["*"],             # Allow all methods
+    allow_headers=["*"],             # Allow all headers
+)
 
 templates = Jinja2Templates(directory="templates")
 
@@ -65,4 +79,4 @@ async def upload_image(image_data: ImageData):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, ssl_keyfile="key.pem", ssl_certfile="cert.pem")
+    uvicorn.run(app, host="0.0.0.0", port=8000)

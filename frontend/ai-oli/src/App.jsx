@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Import axios
 import Header from '../components/Header';
 import Footer from '../components/Footer'; 
 import Home from '../components/Home';
@@ -61,14 +62,20 @@ function App() {
     navigate('/');
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/upload', {
+        image: capturedPhoto
+      });
+      console.log('Photo submitted:', response.data);
+      // Handle the response data here
+    } catch (error) {
+      console.error('Error submitting photo:', error);
+    } finally {
       setLoading(false);
-      // Handle the submission logic here
-      console.log('Photo submitted:', capturedPhoto);
       navigate('/');
-    }, 5000);
+    }
   };
 
   return (
