@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
   ],
-  base: '/aioli.tech/', // Update this to match your bucket path
+  base: '/www.aioli.tech/', // Update this to match your bucket path
   css: {
     preprocessorOptions: {
       css: {
