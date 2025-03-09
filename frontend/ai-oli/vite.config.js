@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
   ],
+  base: 'https://storage.googleapis.com/ai-oli/', // Set this to '/' or your GCS bucket path
   css: {
     preprocessorOptions: {
       css: {
@@ -13,4 +14,3 @@ export default defineConfig({
     },
   },
 });
-

@@ -77,7 +77,7 @@ function App() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/upload', {
+      const response = await axios.post('https://fastapi-backend-401162466994.us-central1.run.app/upload', {
         image: capturedPhoto
       });
       console.log('Photo submitted:', response);
