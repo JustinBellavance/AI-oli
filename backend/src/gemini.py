@@ -23,7 +23,7 @@ def send_photo(image: Image.Image) -> pd.DataFrame:
             image,
             "\n\n",
             """
-            Based on the given image, estimate calories (kcal), protein (g), carbohydrates (g) and fat (g) of each individual element in a csv format. 
+            Based on the given image, estimate "calories (kcal)", "protein (g)", "carbohydrates (g)" and "fat (g)" of each individual element in a csv format. 
             
             Only output the csv.
             

@@ -7,6 +7,7 @@ import Home from '../components/Home';
 import Upload from '../components/Upload'; 
 import cameraIcon from './assets/camera_icon.png'; // Import the camera icon
 import logo from './assets/logo2.png'; // Import the logo
+import Plot from "react-plotly.js";
 import './App.css';
 
 function App() {
@@ -16,6 +17,8 @@ function App() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [capturedPhoto, setCapturedPhoto] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [figureData, setPlotUrl] = useState(null);
+
   const navigate = useNavigate();
 
   const openCamera = async () => {
@@ -68,8 +71,12 @@ function App() {
       const response = await axios.post('http://127.0.0.1:8000/upload', {
         image: capturedPhoto
       });
-      console.log('Photo submitted:', response.data);
-      // Handle the response data here
+      console.log('Photo submitted:', response);
+      const data = response.data;
+      console.log("data")
+      console.log(data)
+      // Assuming response contains a URL to the Plotly graph
+      setPlotUrl(data.figure); 
     } catch (error) {
       console.error('Error submitting photo:', error);
     } finally {
@@ -151,6 +158,25 @@ function App() {
         <div className="hidden">
           <canvas ref={canvasRef} width="640" height="480" className="hidden" />
         </div>
+        {figureData && (
+  <div className="w-full h-auto min-h-[400px] overflow-x-auto">
+    <Plot
+      data={figureData.data}
+      layout={{
+        ...figureData.layout,
+        autosize: true,  // Automatically adjust the plot size based on the parent container
+        width: 420,   // Set width to 100% of the parent container
+        margin: {
+          l: 0,  // Adjust left margin to fit the plot
+          r: 50,  // Adjust right margin to fit the plot
+          t: 50,  // Optional: Adjust top margin
+          b: 50,  // Optional: Adjust bottom margin
+        },
+      }}
+      config={figureData.config}
+    />
+  </div>
+      )}
       </main>
       <Footer />
     </div>

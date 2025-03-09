@@ -4,7 +4,7 @@ load_dotenv()
 import os
 import pandas as pd
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import base64
@@ -14,10 +14,12 @@ from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.gemini import send_photo
+from src.figures import create_figure
 
 origins = [
     "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    "http://127.0.0.1:5173",
+    "http://172.20.10.9:5173"
 ]
 
 app = FastAPI()
@@ -61,9 +63,6 @@ async def upload_image(image_data: ImageData):
 
         # Save the image in the data directory
         image.save(filename)
-        
-        # Log the image saving
-        print(f"Image saved at {filename}")
 
         # Resize image if quality is too high
         width, height = image.size
@@ -84,17 +83,19 @@ async def upload_image(image_data: ImageData):
         
         dataframe['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        print(dataframe.info())
 
         csv_path = "data/data.csv"
         if os.path.exists(csv_path):
             dataframe.to_csv(csv_path, mode='a', header=False, index=False)
         else:
             dataframe.to_csv(csv_path, mode='w', header=True, index=False)
-            
-        print(dataframe.head())
+    
 
-        return {"filename": filename}
+        figure = create_figure( pd.read_csv("data/data.csv")) 
+
+        
+        return {"figure": figure}
+
     except Exception as e:
         print(f"Error processing image: {e}")
         return {"message": "Error processing image"}
