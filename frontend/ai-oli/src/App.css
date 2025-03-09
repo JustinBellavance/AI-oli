@@ -1,16 +1,23 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'CustomFont';
+  src: url('../public/Sora/Sora-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Custom colors */
 :root {
   --primary-color: #d9c4a7; /* Beige */
-  --secondary-color: #3B82F6; /* Light Blue */
-  --background-color: #090602; /* Light Gray */
+  --secondary-color: #a9c5c3; /* Light Blue */
+  --background-color: #fffde5; /* Light Gray */
   --text-color: #1F2937; /* Dark Gray */
 }
 
 /* Custom fonts */
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'CustomFont', sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
   margin: 0;
@@ -22,7 +29,6 @@ body {
 header {
   background-color: var(--primary-color);
   color: white;
-  /* text-align: left; */
   font-size: large;
 }
 
@@ -37,8 +43,6 @@ footer {
 button {
   background-color: var(--secondary-color);
   color: white;
-  /* padding: 0.5rem 1rem; */
-  /* border-radius: 0.375rem; */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s;
 }
@@ -55,6 +59,22 @@ button:hover {
 }
 
 .logo {
-    height: 60px; /* Adjust the height */
-    width: 60px;  /* Adjust the width */
+  height: 70px; /* Adjust the height */
+  width: 70px;  /* Adjust the width */
+  margin: 0 auto;
+  transform: translateY(6px); /* Shift down by 10px */
+}
+
+/* Combined bouncing and stretching animation */
+@keyframes bounce-stretch {
+  25%, 75% {
+    transform: translateY(0) scale(1.1, 0.9);
   }
+  50% {
+    transform: translateY(-22px) scale(1, 1);
+  }
+}
+
+.animate-bounce-stretch {
+  animation: bounce-stretch 1s infinite;
+}
