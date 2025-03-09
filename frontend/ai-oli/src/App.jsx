@@ -17,6 +17,7 @@ function App() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [capturedPhoto, setCapturedPhoto] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [figureChat, setChat] = useState(null);
   const [figureData, setPlotUrl] = useState(null);
   const navigate = useNavigate();
 
@@ -85,6 +86,7 @@ function App() {
       console.log("data")
       console.log(data)
       // Assuming response contains a URL to the Plotly graph
+      setChat(data.chat)
       setPlotUrl(data.figure); 
     } catch (error) {
       console.error('Error submitting photo:', error);
@@ -142,7 +144,7 @@ function App() {
         {loading && (
           <div className="flex flex-col items-center justify-center mt-4">
             <img src={logo} alt="Loading" className="animate-bounce-stretch" style={{ width: '100px', height: '100px' }} />
-            <p className="text-xl font-bold mt-4">Patient... we are analyzing your food</p>
+            <p className="text-xl font-bold mt-4">Please wait... we are analyzing your meal</p>
           </div>
         )}
         {!loading && capturedPhoto && (
@@ -168,23 +170,30 @@ function App() {
           <canvas ref={canvasRef} width="640" height="480" className="hidden" />
         </div>
         {figureData && (
-  <div className="w-full h-auto min-h-[400px] overflow-x-auto">
-    <Plot
-      data={figureData.data}
-      layout={{
-        ...figureData.layout,
-        autosize: true,  // Automatically adjust the plot size based on the parent container
-        width: 420,   // Set width to 100% of the parent container
-        margin: {
-          l: 0,  // Adjust left margin to fit the plot
-          r: 50,  // Adjust right margin to fit the plot
-          t: 50,  // Optional: Adjust top margin
-          b: 50,  // Optional: Adjust bottom margin
-        },
-      }}
-      config={figureData.config}
-    />
-  </div>
+            <div className="mt-6 flex flex-col items-center">
+              {figureChat && (
+                <div className="bg-white shadow-lg rounded-2xl p-6 mb-4 text-center max-w-lg">
+                  <p className="text-lg font-semibold text-gray-800">{figureChat}</p>
+                </div>
+              )}
+              <div className="w-full h-auto min-h-[400px] overflow-x-auto">
+              <Plot
+                data={figureData.data}
+                layout={{
+                  ...figureData.layout,
+                  autosize: true,  // Automatically adjust the plot size based on the parent container
+                  width: 420,   // Set width to 100% of the parent container
+                  margin: {
+                    l: 0,  // Adjust left margin to fit the plot
+                    r: 50,  // Adjust right margin to fit the plot
+                    t: 50,  // Optional: Adjust top margin
+                    b: 50,  // Optional: Adjust bottom margin
+                  },
+                }}
+                config={figureData.config}
+              />
+            </div>
+            </div>
       )}
       </main>
       <Footer />

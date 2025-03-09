@@ -77,8 +77,11 @@ async def upload_image(image_data: ImageData):
         resized_image = image.resize(new_size, Image.LANCZOS)
 
         # Process the image with send_photo
-        dataframe = send_photo(resized_image)
+        df_and_chat = send_photo(resized_image)
 
+        dataframe = df_and_chat['df']
+        chat = df_and_chat['chat']
+        
         if dataframe.empty:
             return {"message": "Not food."}
         
@@ -95,7 +98,7 @@ async def upload_image(image_data: ImageData):
         figure = create_figure( pd.read_csv("data/data.csv")) 
 
         
-        return {"figure": figure}
+        return {"figure": figure, "chat" : chat}
 
     except Exception as e:
         print(f"Error processing image: {e}")
