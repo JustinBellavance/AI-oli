@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect} from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import axios from 'axios'; // Import axios
 import Header from '../components/Header';
@@ -18,24 +18,33 @@ function App() {
   const [capturedPhoto, setCapturedPhoto] = useState(null);
   const [loading, setLoading] = useState(false);
   const [figureData, setPlotUrl] = useState(null);
-
   const navigate = useNavigate();
 
+  // Function to open the camera
   const openCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play();
-        };
-      }
-      setCameraOpen(true);
-    } catch (err) {
-      console.error("Error accessing the camera: ", err);
-      setCameraOpen(true); // Still set cameraOpen to true to display the black screen
-    }
+    setCameraOpen(true); // Change state to open the camera
   };
+
+  // useEffect hook to initialize the camera stream when cameraOpen is true
+  useEffect(() => {
+    if (cameraOpen && videoRef.current) {
+      const initializeStream = async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user' }, // User-facing camera
+          });
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+        } catch (err) {
+          console.error("Error accessing the camera: ", err);
+          alert('Camera access failed. Please make sure you have granted permission.');
+        }
+      };
+
+      initializeStream();
+    }
+  }, [cameraOpen]); // The effect runs when cameraOpen state changes
+
 
   const takePhoto = () => {
     const context = canvasRef.current.getContext('2d');
