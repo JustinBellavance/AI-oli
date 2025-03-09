@@ -58,6 +58,14 @@ button:hover {
   padding: 1rem;
 }
 
+.plot-container {
+  display: flex;
+  justify-content: center;  /* Center horizontally */
+  align-items: center;      /* Center vertically */
+  width: 100%;              /* Make the container take up the full viewport width */
+  background-color: rgba(0, 0, 0, 0); /* Optional: Transparent background */
+}
+
 .logo {
   height: 70px; /* Adjust the height */
   width: 70px;  /* Adjust the width */

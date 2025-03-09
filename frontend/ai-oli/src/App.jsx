@@ -164,23 +164,14 @@ function App() {
             </div>
           </div>
         )}
-        <div className="hidden">
-          <canvas ref={canvasRef} width="640" height="480" className="hidden" />
-        </div>
         {figureData && (
-  <div className="w-full h-auto min-h-[400px] overflow-x-auto">
+  <div className="plot-container w-full">
     <Plot
       data={figureData.data}
       layout={{
         ...figureData.layout,
         autosize: true,  // Automatically adjust the plot size based on the parent container
-        width: 420,   // Set width to 100% of the parent container
-        margin: {
-          l: 0,  // Adjust left margin to fit the plot
-          r: 50,  // Adjust right margin to fit the plot
-          t: 50,  // Optional: Adjust top margin
-          b: 50,  // Optional: Adjust bottom margin
-        },
+        width: 400,   // Set width to 100% of the parent container
       }}
       config={figureData.config}
     />

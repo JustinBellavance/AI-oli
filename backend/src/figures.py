@@ -3,10 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import json
 
-# Read CSV data
 def create_figure(df):
-    
-
     # Group data by timestamp and sum up calories and macronutrients
     agg = df.groupby("timestamp").agg({
         "calories (kcal)": "sum",
@@ -23,72 +20,85 @@ def create_figure(df):
 
     # Calculate percentage for each macronutrient so that they sum to 100%
     agg["protein_pct"] = agg["protein (g)"] / agg["total_macros"] * 100
-    agg["carbs_pct"]   = agg["carbohydrates (g)"] / agg["total_macros"] * 100
-    agg["fat_pct"]     = agg["fat (g)"] / agg["total_macros"] * 100
-    
+    agg["carbs_pct"] = agg["carbohydrates (g)"] / agg["total_macros"] * 100
+    agg["fat_pct"] = agg["fat (g)"] / agg["total_macros"] * 100
+
+    # Format the timestamp to show just the date and time for the x-axis
     agg["time_only"] = pd.to_datetime(agg["timestamp"]).dt.strftime('%H:%M')  # Format it to 'HH:MM' for hours and minutes
-
     agg["timestamp"] = agg["timestamp"].astype(str)
-    
 
-
-    # Create a horizontal stacked bar chart using Plotly Graph Objects
+    # Create a vertical stacked bar chart using Plotly Graph Objects
     fig = go.Figure()
 
     # Add traces for protein, carbohydrates, and fat
     fig.add_trace(go.Bar(
-        y=agg["time_only"].tolist(),
-        x=agg["protein_pct"].tolist(),
+        x=agg["timestamp"].tolist(),
+        y=agg["protein_pct"].tolist(),
         name="Protein",
-        orientation='h'
+        marker=dict(color='#C9B488')
     ))
     fig.add_trace(go.Bar(
-        y=agg["time_only"].tolist(),
-        x=agg["carbs_pct"].tolist(),
+        x=agg["timestamp"].tolist(),
+        y=agg["carbs_pct"].tolist(),
         name="Carbohydrates",
-        orientation='h'
+        marker=dict(color='#CFA486')
     ))
     fig.add_trace(go.Bar(
-        y=agg["time_only"].tolist(),
-        x=agg["fat_pct"].tolist(),
+        x=agg["timestamp"].tolist(),
+        y=agg["fat_pct"].tolist(),
         name="Fat",
-        orientation='h'
+        marker=dict(color='#C18076')
     ))
 
-    # Add annotations for total calories in white text at the center of each bar
+    # Add annotations for total calories in white text at the center of the macronutrient with the highest percentage
     annotations = []
     for _, row in agg.iterrows():
+        max_pct = max(row["protein_pct"], row["carbs_pct"], row["fat_pct"])
+        if max_pct == row["protein_pct"]:
+            y_position = row["protein_pct"] / 2
+        elif max_pct == row["carbs_pct"]:
+            y_position = row["protein_pct"] + row["carbs_pct"] / 2
+        else:
+            y_position = row["protein_pct"] + row["carbs_pct"] + row["fat_pct"] / 2
+
         annotations.append(dict(
-            x=50,  # Center of the bar (0-100%)
-            y=row["time_only"],
+            x=row["timestamp"],  # Position at the timestamp on the x-axis
+            y=y_position,  # Position in the middle of the macronutrient with the highest percentage
             text=f'{row["calories (kcal)"]} kcal',
-            font=dict(color='white', size=8),
+            font=dict(color='white', size=20),  # Increase font size to 12
             showarrow=False,
             xanchor='center',
             yanchor='middle'
         ))
-        
 
+    # Update layout with necessary configurations
     fig.update_layout(
-        dragmode=False,
         barmode='stack',
         annotations=annotations,
-        font=dict(size=12),
+        font=dict(size=14),  # Increase font size to 14
         xaxis=dict(
-            tickformat='%x%', 
-            showticklabels=True
+            title=dict(text="", font=dict(size=16)),  # Remove x-axis title
+            showticklabels=True,
+            type = 'category',
+            categoryorder = 'array',
+            categoryarray = agg["timestamp"].tolist()
         ),
         yaxis=dict(
-            autorange='reversed',
-            type='category',
-            categoryorder='array',
-            categoryarray=agg["time_only"].tolist()  # Use the formatted time-only timestamps for y-axis
+            title=dict(text="", font=dict(size=16)),  # Remove y-axis title
+            showticklabels=False,  # Remove y-axis labels
         ),
-        xaxis_title="",  # Remove x-axis title
-        yaxis_title="",  # Remove y-axis title
-        showlegend=False,  # Remove legend
+        showlegend=True,  # Show the legend
+        legend=dict(
+            orientation="h",  # Horizontal legend
+            yanchor="bottom",
+            y=1.02,
+            xanchor="center",  # Center the legend horizontally
+            x=0.5,  # Center the legend horizontally
+            font=dict(size=10)  # Reduce font size of the legend text to 10
+        ),
         plot_bgcolor='rgba(0,0,0,0)',  # Remove plot background
-        paper_bgcolor='rgba(0,0,0,0)'   # Remove paper background
+        paper_bgcolor='rgba(0,0,0,0)',  # Remove paper background
+        margin=dict(l=50, r=50, t=50, b=50)  # Adjust margins to center the plot
     )
 
     config = {
@@ -98,13 +108,12 @@ def create_figure(df):
     # Ensure the output directory exists
     output_dir = "data/figures"
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, "horizontal_bar_chart.html")
+    output_file = os.path.join(output_dir, "vertical_bar_chart.html")
 
-    # # Save the figure to a file
+    # Save the figure to a file (optional)
     # fig.write_html(output_file, config=config)
 
     fig_json = fig.to_dict()
     fig_json['config'] = config 
     
     return fig_json
-    
