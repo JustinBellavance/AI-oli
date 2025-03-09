@@ -1,0 +1,7 @@
+data/figures/
+data/images/
+
+.venv
+__pycache__
+
+uv.lock
