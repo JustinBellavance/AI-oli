@@ -16,7 +16,7 @@ from io import StringIO
 client = genai.Client()
 
 def send_photo(image: Image.Image) -> pd.DataFrame:
-    
+    print(f"{image=}")
     result = client.models.generate_content(
         model="gemini-2.0-flash",
         contents=[
@@ -35,9 +35,11 @@ def send_photo(image: Image.Image) -> pd.DataFrame:
             """,
         ],
     )
+    print(result.text)
+
     # Check if the result is "not food"
     if result.text.lower() == "not food":
-        return None
+        return pd.DataFrame()
     
     csv_data = result.text.replace('```csv', '').replace('```', '').strip()
 

@@ -43,39 +43,61 @@ async def read_root(request: Request):
 
 @app.post("/upload")
 async def upload_image(image_data: ImageData):
-    # First, define the filename using the current date and time
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"data/images/uploaded_image_{timestamp}.png"
-    
-    with open('data/images/bigmac_patrick.png', 'rb') as image_file:
-        img_str = base64.b64encode(image_file.read()).decode('utf-8')
-    image_data.image = f"data:image/png;base64,{img_str}"
-    
-    # Now decode the image from base64
-    image_data = image_data.image.split(",")[1]
-    image = Image.open(io.BytesIO(base64.b64decode(image_data)))
-
-    # Ensure the data directory exists
-    os.makedirs("data", exist_ok=True)
-
-    # Save the image in the data directory
-    image.save(filename)
-    
-    dataframe = send_photo(image)
-    
-    dataframe['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    print(dataframe.info())
-
-    csv_path = "data/data.csv"
-    if os.path.exists(csv_path):
-        dataframe.to_csv(csv_path, mode='a', header=False, index=False)
-    else:
-        dataframe.to_csv(csv_path, mode='w', header=True, index=False)
+    try:
+        # First, define the filename using the current date and time
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = f"data/images/uploaded_image_{timestamp}.png"
         
-    print(dataframe.head())
+        # Now decode the image from base64
+        image_data = image_data.image.split(",")[1]
+        image = Image.open(io.BytesIO(base64.b64decode(image_data)))
 
-    return {"filename": filename}
+        # Convert the image to RGB format
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+
+        # Ensure the data directory exists
+        os.makedirs("data/images", exist_ok=True)
+
+        # Save the image in the data directory
+        image.save(filename)
+        
+        # Log the image saving
+        print(f"Image saved at {filename}")
+
+        # Resize image if quality is too high
+        width, height = image.size
+
+        # Calculate the new size while maintaining aspect ratio
+        max_size = 250
+        ratio = min(max_size / width, max_size / height)
+        new_size = (int(width * ratio), int(height * ratio))
+
+        # Resize the image
+        resized_image = image.resize(new_size, Image.LANCZOS)
+
+        # Process the image with send_photo
+        dataframe = send_photo(resized_image)
+
+        if dataframe.empty:
+            return {"message": "Not food."}
+        
+        dataframe['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        print(dataframe.info())
+
+        csv_path = "data/data.csv"
+        if os.path.exists(csv_path):
+            dataframe.to_csv(csv_path, mode='a', header=False, index=False)
+        else:
+            dataframe.to_csv(csv_path, mode='w', header=True, index=False)
+            
+        print(dataframe.head())
+
+        return {"filename": filename}
+    except Exception as e:
+        print(f"Error processing image: {e}")
+        return {"message": "Error processing image"}
 
 if __name__ == "__main__":
     import uvicorn
