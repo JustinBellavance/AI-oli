@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FastAPI Application</title>
+</head>
+<body>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="snap">Take Photo</button>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <p id="error-message" style="color: red;"></p>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const snap = document.getElementById('snap');
+        const errorMessage = document.getElementById('error-message');
+
+        // Access the camera
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Error accessing the camera: ", err);
+                errorMessage.textContent = "Error accessing the camera: " + err.message;
+                if (err.name === 'NotAllowedError') {
+                    errorMessage.textContent += " - Please allow camera access.";
+                } else if (err.name === 'NotFoundError') {
+                    errorMessage.textContent += " - No camera found.";
+                } else if (err.name === 'NotReadableError') {
+                    errorMessage.textContent += " - Camera is already in use.";
+                } else if (err.name === 'OverconstrainedError') {
+                    errorMessage.textContent += " - Constraints cannot be satisfied.";
+                } else if (err.name === 'SecurityError') {
+                    errorMessage.textContent += " - Security error.";
+                } else if (err.name === 'TypeError') {
+                    errorMessage.textContent += " - Type error.";
+                }
+            }
+        }
+
+        startCamera();
+
+        // Take a photo and send it to the backend
+        snap.addEventListener('click', () => {
+            context.drawImage(video, 0, 0, 640, 480);
+            const dataURL = canvas.toDataURL('image/png');
+            fetch('/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ image: dataURL })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
